@@ -31,4 +31,4 @@ Fonts: [Syne](https://fonts.google.com/specimen/Syne) · [Crimson Pro](https://f
 
 ---
 
-*© 2026 Arithma · Soool Space*
+*© 2026 Laura Salcido · Soool Space*
