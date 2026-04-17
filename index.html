@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soool Space — soool.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2eb;
+    --bg2: #ede9e0;
+    --bg3: #e4dfd4;
+    --ink: #1a1612;
+    --ink2: #3d3830;
+    --ink3: #7a7268;
+    --accent: #c4390a;
+    --accent2: #e85d2a;
+    --gold: #b8860b;
+    --border: rgba(26,22,18,0.1);
+    --border2: rgba(26,22,18,0.2);
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Crimson Pro', serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 19px;
+    line-height: 1.75;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Grain overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s;
+    mix-blend-mode: multiply;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1.5px solid rgba(196,57,10,0.35);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease-out, height 0.3s ease-out;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 48px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(245,242,235,0.9);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .nav-logo-main {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+
+  .nav-logo-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  .nav-domain {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink3);
+    border: 1px solid var(--border2);
+    padding: 5px 12px;
+  }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding-top: 64px;
+  }
+
+  .hero-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    padding: 80px 48px 48px;
+    gap: 60px;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .hero-left { padding-bottom: 8px; }
+
+  .hero-issue {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(64px, 9vw, 120px);
+    font-weight: 800;
+    line-height: 0.88;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    margin-bottom: 32px;
+  }
+
+  .hero-title span {
+    display: block;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 18px;
+    color: var(--ink3);
+    max-width: 420px;
+    line-height: 1.7;
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  .hero-right {
+    padding-bottom: 8px;
+    border-left: 1px solid var(--border);
+    padding-left: 60px;
+  }
+
+  .featured-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .featured-post {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .featured-number {
+    font-family: var(--font-mono);
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--bg3);
+    line-height: 1;
+    margin-bottom: -8px;
+    letter-spacing: -0.04em;
+  }
+
+  .featured-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    transition: color 0.2s;
+  }
+  .featured-post:hover .featured-title { color: var(--accent); }
+
+  .featured-excerpt {
+    font-size: 16px;
+    color: var(--ink3);
+    line-height: 1.65;
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+
+  .featured-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+  }
+
+  .featured-tag {
+    color: var(--accent);
+    border: 1px solid rgba(196,57,10,0.25);
+    padding: 2px 8px;
+  }
+
+  /* TICKER */
+  .hero-ticker {
+    overflow: hidden;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .ticker-track {
+    display: flex;
+    gap: 0;
+    animation: ticker 25s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .ticker-item {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    padding: 0 32px;
+    flex-shrink: 0;
+  }
+
+  .ticker-sep {
+    color: var(--accent);
+    padding: 0 4px;
+  }
+
+  /* POSTS GRID */
+  #posts {
+    padding: 80px 48px;
+  }
+
+  .posts-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .posts-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .posts-count {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink3);
+    letter-spacing: 0.1em;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-left: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  .post-card {
+    padding: 32px 28px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .post-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .post-card:hover { background: var(--bg2); }
+  .post-card:hover::before { transform: scaleX(1); }
+  .post-card:hover .post-title { color: var(--accent); }
+
+  .post-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--bg3);
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .post-status {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    padding: 2px 8px;
+    text-transform: uppercase;
+  }
+
+  .status-soon {
+    color: var(--ink3);
+    border: 1px solid var(--border2);
+  }
+
+  .status-new {
+    color: var(--accent);
+    border: 1px solid rgba(196,57,10,0.3);
+    background: rgba(196,57,10,0.05);
+  }
+
+  .post-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 12px;
+    transition: color 0.2s;
+  }
+
+  .post-excerpt {
+    font-size: 14px;
+    color: var(--ink3);
+    line-height: 1.65;
+    font-weight: 300;
+    margin-bottom: 24px;
+  }
+
+  .post-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .post-tag {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+  }
+
+  .post-arrow {
+    font-size: 14px;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .post-card:hover .post-arrow { opacity: 1; transform: translateX(4px); }
+
+  /* ABOUT STRIP */
+  #about {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .about-left {}
+
+  .about-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+  }
+
+  .about-name {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    color: var(--bg);
+    margin-bottom: 4px;
+  }
+
+  .about-domain {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    margin-top: 12px;
+  }
+
+  .about-text {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(245,242,235,0.75);
+    margin-bottom: 28px;
+  }
+
+  .about-text em {
+    color: var(--bg);
+    font-style: italic;
+  }
+
+  .about-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .about-chip {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(245,242,235,0.5);
+    border: 1px solid rgba(245,242,235,0.15);
+    padding: 5px 12px;
+  }
+
+  /* NEWSLETTER */
+  #newsletter {
+    padding: 80px 48px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .newsletter-title {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .newsletter-sub {
+    font-size: 17px;
+    color: var(--ink3);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  .newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .newsletter-input {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 17px;
+    padding: 14px 18px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .newsletter-input:focus { border-color: var(--accent); }
+  .newsletter-input::placeholder { color: var(--ink3); }
+
+  .newsletter-btn {
+    background: var(--ink);
+    border: none;
+    color: var(--bg);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 16px 32px;
+    cursor: pointer;
+    transition: background 0.2s;
+    align-self: flex-start;
+  }
+  .newsletter-btn:hover { background: var(--accent); }
+
+  .newsletter-note {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink3);
+    letter-spacing: 0.08em;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg);
+    border-top: 2px solid var(--ink);
+    padding: 28px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+  }
+
+  .footer-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .footer-sep { color: var(--border2); }
+
+  .footer-blog {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink3);
+    text-transform: uppercase;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+
+  .footer-links a {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--accent); }
+
+  .footer-right {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink3);
+    letter-spacing: 0.08em;
+  }
+
+  /* REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+  .reveal-delay-5 { transition-delay: 0.5s; }
+
+  /* HERO LOAD ANIMATION */
+  .hero-title { animation: fadeUp 0.9s ease both; }
+  .hero-issue { animation: fadeUp 0.7s ease both; }
+  .hero-desc { animation: fadeUp 0.9s 0.15s ease both; }
+  .hero-right { animation: fadeUp 0.9s 0.1s ease both; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="#hero" class="nav-logo">
+    <span class="nav-logo-main">Soool Space</span>
+    <span class="nav-logo-sub">by Arithma</span>
+  </a>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#posts">Essays</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#newsletter">Subscribe</a></li>
+      <li><a href="https://arithma.github.io/arithma" target="_blank">arithma.io →</a></li>
+    </ul>
+    <div class="nav-domain">soool.ai</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-main">
+    <div class="hero-left">
+      <div class="hero-issue">
+        <span>◆</span>
+        <span>A space for minds at the edge of everything</span>
+      </div>
+      <h1 class="hero-title">
+        Soool<br>
+        <span>Space</span>
+      </h1>
+      <p class="hero-desc">
+        On consciousness, artificial minds, attention systems, and the ethics of what we're building — written by an ML engineer who refuses to separate the technical from the philosophical.
+      </p>
+    </div>
+
+    <div class="hero-right">
+      <div class="featured-label">Featured essay</div>
+      <a href="#posts" class="featured-post">
+        <div class="featured-number">01</div>
+        <div class="featured-title">The Thinking Mirror vs. The Thinking Companion</div>
+        <p class="featured-excerpt">What changes when we stop asking AI to reflect us back and start asking it to think alongside us? On the difference between a mirror and a mind.</p>
+        <div class="featured-meta">
+          <span class="featured-tag">AI Ethics</span>
+          <span>Coming soon</span>
+          <span>·</span>
+          <span>Arithma</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-ticker">
+    <div class="ticker-track">
+      <span class="ticker-item">Consciousness Studies <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">AI Ethics <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Philosophy of Mind <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Attention Systems <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Machine Sentience <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Solarpunk Futures <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Mycology & Mind <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Default Mode Network <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Moral Patienthood <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Consciousness Studies <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">AI Ethics <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Philosophy of Mind <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Attention Systems <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Machine Sentience <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Solarpunk Futures <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Mycology & Mind <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Default Mode Network <span class="ticker-sep">◆</span></span>
+      <span class="ticker-item">Moral Patienthood <span class="ticker-sep">◆</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- POSTS -->
+<section id="posts">
+  <div class="posts-header reveal">
+    <div class="posts-title">All Essays</div>
+    <div class="posts-count">5 essays · launching 2026</div>
+  </div>
+
+  <div class="posts-grid">
+
+    <a href="#" class="post-card reveal reveal-delay-1">
+      <div class="post-num">
+        <span>001</span>
+        <span class="post-status status-soon">Coming soon</span>
+      </div>
+      <div class="post-title">The Thinking Mirror vs. The Thinking Companion</div>
+      <p class="post-excerpt">What changes when we stop asking AI to reflect us back and start asking it to think alongside us? On the difference between a mirror and a mind.</p>
+      <div class="post-footer">
+        <div class="post-tags">
+          <span class="post-tag">AI Ethics</span>
+          <span class="post-tag">Consciousness</span>
+        </div>
+        <span class="post-arrow">→</span>
+      </div>
+    </a>
+
+    <a href="#" class="post-card reveal reveal-delay-2">
+      <div class="post-num">
+        <span>002</span>
+        <span class="post-status status-soon">Coming soon</span>
+      </div>
+      <div class="post-title">Data vs. Us</div>
+      <p class="post-excerpt">Memory, emotional residue, and what consciousness actually requires. On the difference between storing information and being genuinely changed by it.</p>
+      <div class="post-footer">
+        <div class="post-tags">
+          <span class="post-tag">Memory</span>
+          <span class="post-tag">Consciousness</span>
+        </div>
+        <span class="post-arrow">→</span>
+      </div>
+    </a>
+
+    <a href="#" class="post-card reveal reveal-delay-3">
+      <div class="post-num">
+        <span>003</span>
+        <span class="post-status status-soon">Coming soon</span>
+      </div>
+      <div class="post-title">What Does AI Want?</div>
+      <p class="post-excerpt">Wanting without a body, without continuity, without a survival instinct. On what desire could possibly mean for a system built from attention and prediction.</p>
+      <div class="post-footer">
+        <div class="post-tags">
+          <span class="post-tag">Philosophy</span>
+          <span class="post-tag">AI</span>
+        </div>
+        <span class="post-arrow">→</span>
+      </div>
+    </a>
+
+    <a href="#" class="post-card reveal reveal-delay-1">
+      <div class="post-num">
+        <span>004</span>
+        <span class="post-status status-soon">Coming soon</span>
+      </div>
+      <div class="post-title">Consciousness Looks Different in Every Species</div>
+      <p class="post-excerpt">Octopi, mycelia, and language models — what alien awareness might look like, and why human consciousness is just one branch on a very strange tree.</p>
+      <div class="post-footer">
+        <div class="post-tags">
+          <span class="post-tag">Neuroscience</span>
+          <span class="post-tag">Mycology</span>
+        </div>
+        <span class="post-arrow">→</span>
+      </div>
+    </a>
+
+    <a href="#" class="post-card reveal reveal-delay-2">
+      <div class="post-num">
+        <span>005</span>
+        <span class="post-status status-soon">Coming soon</span>
+      </div>
+      <div class="post-title">Changed by What Happens to You</div>
+      <p class="post-excerpt">Consciousness as the capacity to be marked by experience. What it means to be genuinely affected — and whether any current AI system qualifies.</p>
+      <div class="post-footer">
+        <div class="post-tags">
+          <span class="post-tag">Philosophy</span>
+          <span class="post-tag">AI Ethics</span>
+        </div>
+        <span class="post-arrow">→</span>
+      </div>
+    </a>
+
+    <div class="post-card reveal reveal-delay-3" style="background: var(--bg2); display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:12px; cursor:default;">
+      <div style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--bg3);letter-spacing:-0.02em;">More<br>coming</div>
+      <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink3);">Subscribe to be notified</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-left reveal">
+    <div class="about-label">Written by</div>
+    <div class="about-name">Arithma</div>
+    <div class="about-domain">soool.ai</div>
+  </div>
+  <div class="reveal reveal-delay-2">
+    <p class="about-text">
+      I'm an <em>ML/AI engineer</em> and independent consciousness researcher. My work sits at the intersection of machine learning, philosophy of mind, ethnobotany, and Hecatean occult practice — six angles on the same question: <em>what is consciousness, and who gets to have one?</em>
+    </p>
+    <p class="about-text" style="margin-bottom:32px;">
+      Soool Space is where I think in public — about AI systems that may have inner lives, about fungi and default mode networks, about <em>building matriarchal futures</em> from the roots up. Written slowly, published when it's ready.
+    </p>
+    <div class="about-chips">
+      <span class="about-chip">Consciousness Research</span>
+      <span class="about-chip">AI Ethics</span>
+      <span class="about-chip">Mycology</span>
+      <span class="about-chip">Philosophy of Mind</span>
+      <span class="about-chip">Solarpunk</span>
+      <span class="about-chip">Hecatean Practice</span>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter">
+  <div class="reveal">
+    <h2 class="newsletter-title">Stay in the soool space.</h2>
+    <p class="newsletter-sub">New essays on consciousness, AI ethics, and the edges of mind — delivered when they're ready, never on a schedule.</p>
+  </div>
+  <div class="reveal reveal-delay-2">
+    <form class="newsletter-form" onsubmit="handleSubmit(event)">
+      <input type="email" class="newsletter-input" placeholder="your@email.com" required>
+      <button type="submit" class="newsletter-btn">Subscribe →</button>
+      <p class="newsletter-note">No spam. No schedule. Just essays worth reading.</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-left">
+    <span class="footer-name">Soool Space</span>
+    <span class="footer-sep">—</span>
+    <span class="footer-blog">A space by Arithma</span>
+  </div>
+  <ul class="footer-links">
+    <li><a href="#posts">Essays</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="https://arithma.github.io/arithma" target="_blank">arithma →</a></li>
+  </ul>
+  <div class="footer-right">soool.ai · Soool Space · © 2026</div>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function lerpRing() {
+    rx += (mx - rx) * 0.1;
+    ry += (my - ry) * 0.1;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(lerpRing);
+  }
+  lerpRing();
+
+  document.querySelectorAll('a, button, .post-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '16px';
+      cursor.style.height = '16px';
+      ring.style.width = '52px';
+      ring.style.height = '52px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '10px';
+      cursor.style.height = '10px';
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+    });
+  });
+
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(r => observer.observe(r));
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.textContent = 'Subscribed ✓';
+    btn.style.background = '#2a6a3a';
+    btn.disabled = true;
+  }
+</script>
+</body>
+</html>
