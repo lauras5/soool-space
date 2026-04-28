@@ -2,7 +2,7 @@
 
 **A journal of mind, machine, and the space between.**
 
-Essays on AI consciousness, ethics, philosophy of mind, mycology, and solarpunk futures — written by Arithma.
+Essays on AI consciousness, ethics, philosophy of mind, mycology, and solarpunk futures.
 
 Live at → [lauras5.github.io/soool-space](https://lauras5.github.io/soool-space)
 
